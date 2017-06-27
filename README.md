@@ -12,7 +12,8 @@ This will compile the source and run the test programs.
 
 ### Run
 
-The application can run with no arguments and produce the required output. It can also allows one or two arguments to override the source url and if the url override is specified can choose a different pet 'type'.
+The application can run with no arguments and produce the required output. It also allows one or two arguments to override the source url and if the url override is specified can choose a different pet 'type'.
+The application can run with no arguments and produce the required output. It also allows one or two arguments to override the source url and if the url override is specified can choose a different pet 'type'.
 
 Examples:
 
