@@ -1,4 +1,4 @@
-package agl_challenge_cats;
+package au.com.terryflander;
 
 /**
  * Applet to fetch Pet List from URL and output as HTML

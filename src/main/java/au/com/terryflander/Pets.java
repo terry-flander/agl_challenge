@@ -1,4 +1,4 @@
-package agl_challenge_cats;
+package au.com.terryflander;
 
 import java.net.URL;
 import java.io.BufferedReader;

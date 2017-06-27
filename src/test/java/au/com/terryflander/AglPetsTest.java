@@ -1,4 +1,4 @@
-package agl_challenge_cats;
+package au.com.terryflander;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
