@@ -3,11 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>au.com.terryflander</groupId>
-  <artifactId>aglCats</artifactId>
+  <artifactId>aglPets</artifactId>
   <version>1.0</version>
   <packaging>jar</packaging>
 
-  <name>aglCats</name>
+  <name>aglPets</name>
   <url>http://maven.apache.org</url>
 
   <properties>

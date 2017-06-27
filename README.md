@@ -1,19 +1,14 @@
 # agl_challenge
-The application agl_cats is designed to output by default the HTML formatted list of Cats by Male and Female owners. The source is the URL : http://agl-developer-test.azurewebsites.net/people.json and the selected pet will be "Cat". These values can be overidded at run time as described below. 
+The application aglPets is designed to output by default the HTML formatted list of Cats by Male and Female owners. The source is the URL : http://agl-developer-test.azurewebsites.net/people.json and the selected pet will be "Cat". These values can be overidded at run time as described below. 
 
 ### Install
 
-1. Clone from GitHub
-2. Unpack in \<work-directory>
-3. cd to \<work-directory>/agl_cats
+1. Clone or Download from GitHub
+2. Unpack in `<work-directory>`
+3. `cd to <work-directory>/agl_challenge`
+4. `mvn clean package`
 
-### Build
-
-```
-mvn clean package
-```
-
-This will compile the source and run the test package.
+This will compile the source and run the test programs.
 
 ### Run
 
