@@ -109,7 +109,7 @@ class Pets {
       JSONObject obj = new JSONObject(wrapJson(text));
       result = obj.getJSONArray("data");
     } catch (Exception e) {
-      e.printStackTrace();
+      System.out.println("ERROR: Could not parse text as valid JSON: " + text);
     }
     return result;
   }
@@ -135,7 +135,7 @@ class Pets {
         result.append(inputLine);
       in.close();
     } catch (Exception e) {
-      e.printStackTrace();
+      System.out.println("ERROR: Url invalid");
     }
     return result.toString();
   }
