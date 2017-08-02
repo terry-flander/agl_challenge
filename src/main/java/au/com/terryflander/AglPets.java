@@ -17,7 +17,9 @@ class AglPets {
             : "http://agl-developer-test.azurewebsites.net/people.json";
         String petType = args.length > 1 ? args[1] : "Cat";
 
-        System.out.println(Pets.getPetsByTypeFormatHtml(sourceUrl, petType));
+        PetDataSource pds = new HttpDataSource();
+        pds.setSourceName(sourceUrl);
+        System.out.println(Pets.getPetsByTypeFormatHtml(pds, petType));
       }
     } catch (Exception e) {
       e.printStackTrace();

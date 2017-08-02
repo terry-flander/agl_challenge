@@ -1,26 +1,28 @@
 package au.com.terryflander;
 
-import java.net.URL;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 import org.json.*;
 
 /**
- * Fetch JSON data from URL and return de-normalised data in an Array of Pet instances.
+ * Fetch JSON data from PetDataSource and return HTML Formatted list of Pets by Type,
+ * sorted by Owner gender and then alphabetically by Pet Name.
  */
 class Pets {
 
-  public static String getPetsByTypeFormatHtml(String sourceUrl, String petType) {
+  public static String getPetsByTypeFormatHtml(PetDataSource pds, String petType) {
     String result = null;
 
     try {
-      String lastGender = "";
 
-      List<Pet> allPets = getPetListFromUrl(sourceUrl);
-      result = getHtmlPetsFromList(allPets, petType);
+      List<Owner> allOwners = getOwnerList(pds.getPetData());
+
+      List<ReportPet> reportPets = getPetsFromOwners(allOwners);
+
+      reportPets = selectPetsByPetType(reportPets, petType);
+
+      result = formatHtmlFromReportPetList(reportPets);
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -28,15 +30,49 @@ class Pets {
     return result;
   }
 
-  public static String getHtmlPetsFromList(List<Pet>allPets, String petType) {
+  protected static List<Owner> getOwnerList(JSONArray arr) {
+    List<Owner> result = new ArrayList<>();
+
+    for (int i = 0; i < arr.length(); i++) {
+      result.add(OwnerFactory.buildOwnerFromJSON(arr.getJSONObject(i)));
+    }
+    return result;
+  }
+
+  protected static List<ReportPet> getPetsFromOwners(List<Owner> allOwners) {
+    @SuppressWarnings("Convert2Diamond") List<ReportPet> result = new ArrayList<ReportPet>();
+    for (Owner owner: allOwners) {
+      if (owner.getPets()!=null) {
+        for (Pet pet: owner.getPets()) {
+          result.add(new ReportPet(owner.getGender(), pet.getType(), pet.getPetName()));
+        }
+      }
+    }
+    return result;
+  }
+
+  protected static List<ReportPet> selectPetsByPetType(List<ReportPet> allPets, String petType) {
+    List<ReportPet> result = null;
+    try {
+      result = allPets
+          .stream()
+          .filter(e -> e.getPetType().equals(petType))
+          .sorted((p1, p2) -> p2.getGender().compareTo(p1.getGender()) != 0 ?
+              p2.getGender().compareTo(p1.getGender()) :
+              p2.getPetName().compareTo(p1.getPetName()) * -1)
+          .collect(Collectors.toList());
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return result;
+  }
+
+  protected static String formatHtmlFromReportPetList(List<ReportPet>allPets) {
     StringBuilder result = new StringBuilder();
 
     try {
       String lastGender = "";
-
-      List<Pet> somePets = getPetListByPetType(allPets, petType);
-
-      for (Pet pet: somePets) {
+      for (ReportPet pet: allPets) {
         if (!lastGender.equals(pet.getGender())) {
           if (lastGender.length()!=0) {
             result.append("</ul>");
@@ -53,91 +89,29 @@ class Pets {
     return result.toString();
   }
 
-  private static List<Pet> getPetListByPetType(List<Pet> allPets, String petType) {
-    List<Pet> result = null;
-    try {
-      result = allPets
-          .stream()
-          .filter(e -> e.getType().equals(petType))
-          .sorted((p1, p2) -> p2.getGender().compareTo(p1.getGender()) != 0 ?
-              p2.getGender().compareTo(p1.getGender()) :
-              p2.getPetName().compareTo(p1.getPetName()) * -1)
-          .collect(Collectors.toList());
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    return result;
-  }
+  static class ReportPet {
+    final String gender;
+    final String petType;
+    final String petName;
 
-  private static List<Pet> getPetListFromUrl(String sourceUrl) {
-    String text = getUrlText(sourceUrl);
-    JSONArray arr = convertTextToJsonArray(text);
-    return getPetList(arr);
-  }
-
-  protected static List<Pet> getPetList(JSONArray arr) {
-    List<Pet> result = new ArrayList<>();
-    for (int i = 0; i < arr.length(); i++) {
-      JSONObject owner = arr.getJSONObject(i);
-      JSONArray pets = getPets(owner);
-      if (pets.length() != 0) {
-        for (int j = 0; j < pets.length(); j++) {
-          JSONObject pet = pets.getJSONObject(j);
-          result.add(new Pet(owner.getString("name"),
-              owner.getString("gender"),
-              owner.getInt("age"),
-              pet.getString("type"),
-              pet.getString("name")));
-        }
-      }
+    public ReportPet (String gender, String petType, String petName) {
+      this.gender = gender;
+      this.petName = petName;
+      this.petType = petType;
     }
-    return result;
-  }
 
-  public static JSONArray getPets(JSONObject owner) {
-    JSONArray result = new JSONArray();
-    if (!owner.isNull("pets")) {
-      result = owner.getJSONArray("pets");
+    public String getGender() {
+      return this.gender;
     }
-    return result;
 
-  }
+    public String getPetType() {
+      return this.petType;
+    }
 
-  public static JSONArray convertTextToJsonArray(String text) {
-    JSONArray result = new JSONArray();
-    try {
-      JSONObject obj = new JSONObject(wrapJson(text));
-      result = obj.getJSONArray("data");
-    } catch (Exception e) {
-      System.out.println("ERROR: Could not parse text as valid JSON: " + text);
+    public String getPetName() {
+      return this.petName;
     }
-    return result;
-  }
 
-  public static String wrapJson(String source) {
-    String result = source;
-    if (result.length()==0) {
-      result = "[]";
-    }
-    if (!result.startsWith("{")) {
-        result = "{data:" + result + "}";
-    }
-    return result;
-  }
-
-  public static String getUrlText(String urlName) {
-    StringBuilder result = new StringBuilder();
-    try {
-      URL url = new URL(urlName);
-      BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-      String inputLine;
-      while ((inputLine = in.readLine()) != null)
-        result.append(inputLine);
-      in.close();
-    } catch (Exception e) {
-      System.out.println("ERROR: Url invalid");
-    }
-    return result.toString();
   }
 
 }
